@@ -96,6 +96,10 @@ for log_name in ('main', 'trace', 'ui', 'ext', 'bp'):
     level = os.getenv(
         'WDB_%s_LOG' % log_name.upper(), os.getenv('WDB_LOG', 'WARNING')
     ).upper()
+
+    # forzamos level debug
+    level = 'DEBUG'
+
     logging.getLogger(logger_name).setLevel(getattr(logging, level, 'WARNING'))
 
 
@@ -127,7 +131,7 @@ class Wdb(object):
                 or port is not None
                 and wdb.port != port
             ):
-                log.warn('Different server/port set, ignoring')
+                log.warning('Different server/port set, ignoring')
             else:
                 wdb.reconnect_if_needed()
         return wdb
@@ -837,7 +841,7 @@ class Wdb(object):
         """Send data through websocket"""
         log.debug('Sending %s' % data)
         if not self._socket:
-            log.warn('No connection')
+            log.warning('No connection')
             return
         self._socket.send_bytes(data.encode('utf-8'))
 
@@ -845,7 +849,7 @@ class Wdb(object):
         """Receive data through websocket"""
         log.debug('Receiving')
         if not self._socket:
-            log.warn('No connection')
+            log.warning('No connection')
             return
         try:
             if timeout:
@@ -1151,7 +1155,7 @@ def cleanup():
         try:
             sck.close()
         except Exception:
-            log.warn('Error in cleanup', exc_info=True)
+            log.warning('Error in cleanup', exc_info=True)
 
 
 def shell(source=None, vars=None, server=None, port=None):

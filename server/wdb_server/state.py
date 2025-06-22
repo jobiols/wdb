@@ -37,7 +37,7 @@ class BaseSockets(object):
         if sck:
             self._send(sck, data)
         else:
-            log.warn('No socket found for %s' % uuid)
+            log.warning('No socket found for %s' % uuid)
 
     def get(self, uuid):
         return self._sockets.get(uuid)
@@ -48,7 +48,7 @@ class BaseSockets(object):
                 log.debug('Broadcast to socket %s' % uuid)
                 self.send(uuid, cmd, message)
             except Exception:
-                log.warn('Failed broadcast to socket %s' % uuid)
+                log.warning('Failed broadcast to socket %s' % uuid)
                 self.close(uuid)
                 self.remove(uuid)
 
@@ -71,7 +71,7 @@ class BaseSockets(object):
         try:
             sck.close()
         except Exception:
-            log.warn('Failed close to socket %s' % uuid)
+            log.warning('Failed close to socket %s' % uuid)
 
     @property
     def uuids(self):
@@ -116,7 +116,7 @@ class WebSockets(BaseSockets):
         if sck.ws_connection:
             sck.write_message(data)
         else:
-            log.warn('Websocket is closed')
+            log.warning('Websocket is closed')
 
     def add(self, uuid, sck):
         super(WebSockets, self).add(uuid, sck)

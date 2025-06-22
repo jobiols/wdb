@@ -7,7 +7,7 @@ import sys
 
 from setuptools import setup
 
-__version__ = '3.3.0'
+__version__ = '3.3.1'
 
 requires = [
     "log_colorizer>=1.8.3",
@@ -15,12 +15,6 @@ requires = [
     'uncompyle6',
     'python-magic>=0.4.15',
 ]
-
-if sys.version_info[:2] <= (2, 6):
-    requires.append('argparse')
-    requires.append('ordereddict')
-else:
-    requires.append('importmagic3')
 
 options = dict(
     name="wdb",
@@ -45,7 +39,6 @@ options = dict(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
