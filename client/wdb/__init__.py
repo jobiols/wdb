@@ -14,17 +14,26 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import with_statement
+
+# try:
+#     import pkg_resources
+# except ImportError:
+#     __version__ = "pkg_resources not found on PYTHON_PATH"
+# else:
+#     try:
+#         __version__ = pkg_resources.require('wdb')[0].version
+#     except pkg_resources.DistributionNotFound:
+#         __version__ = "wdb is not installed"
 
 try:
-    import pkg_resources
+    from importlib.metadata import version, PackageNotFoundError
 except ImportError:
-    __version__ = "pkg_resources not found on PYTHON_PATH"
+    __version__ = "unknown"
 else:
     try:
-        __version__ = pkg_resources.require('wdb')[0].version
-    except pkg_resources.DistributionNotFound:
-        __version__ = "wdb is not installed"
+        __version__ = version('wdb')
+    except PackageNotFoundError:
+        __version__ = "unknown"
 
 _initial_globals = dict(globals())
 
@@ -1181,4 +1190,6 @@ def post_mortem(t=None, server=None, port=None):
 
 
 def pm(server=None, port=None):
-    post_mortem(sys.last_traceback, server=server, port=port)
+#    post_mortem(sys.last_traceback, server=server, port=port)
+# TODO Revisar
+    post_mortem(getattr(sys, 'last_traceback', server=server, port=port))

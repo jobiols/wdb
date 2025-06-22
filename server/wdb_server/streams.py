@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
-from functools import partial
+import asyncio
 from logging import getLogger
 from struct import unpack
 
@@ -28,9 +28,31 @@ log = getLogger('wdb_server')
 log.setLevel(10 if options.debug else 30)
 
 
-def on_close(stream, uuid):
-    # None if the user closed the window
-    log.info('uuid %s closed' % uuid)
+async def handle_connection(connection, address):
+    log.info('Connection received from %s' % str(address))
+    stream = IOStream(connection, max_buffer_size=1024 * 1024 * 1024)
+
+    try:
+        raw_length = await stream.read_bytes(4)
+        uuid_length, = unpack("!i", raw_length)
+        assert uuid_length == 36, 'Wrong uuid length'
+
+        uuid_bytes = await stream.read_bytes(uuid_length)
+        uuid = uuid_bytes.decode("utf-8")
+        log.debug('Assigning stream to %s' % uuid)
+
+        sockets.add(uuid, stream)
+        stream.set_close_callback(lambda: on_close(uuid))
+        await read_loop(stream, uuid)
+
+    except StreamClosedError:
+        log.warning('Stream closed unexpectedly for %s' % address)
+    except Exception as e:
+        log.error("Error during connection handling: %s", e)
+
+
+def on_close(uuid):
+    log.info('uuid %s closed', uuid)
     if websockets.get(uuid):
         websockets.send(uuid, 'Die')
         websockets.close(uuid)
@@ -38,56 +60,25 @@ def on_close(stream, uuid):
     sockets.remove(uuid)
 
 
-def read_frame(stream, uuid, frame):
-    decoded_frame = frame.decode('utf-8')
-    if decoded_frame == 'ServerBreaks':
+async def read_loop(stream, uuid):
+    try:
+        while True:
+            raw_length = await stream.read_bytes(4)
+            length, = unpack("!i", raw_length)
+            frame = await stream.read_bytes(length)
+            await handle_frame(uuid, stream, frame)
+    except StreamClosedError:
+        log.warning('Closed stream for %s' % uuid)
+
+
+async def handle_frame(uuid, stream, frame):
+    decoded = frame.decode('utf-8')
+    if decoded == 'ServerBreaks':
         sockets.send(uuid, json.dumps(breakpoints.get()))
-    elif decoded_frame == 'PING':
+    elif decoded == 'PING':
         log.info('%s PONG' % uuid)
-    elif decoded_frame.startswith('UPDATE_FILENAME'):
-        filename = decoded_frame.split('|', 1)[1]
+    elif decoded.startswith('UPDATE_FILENAME'):
+        filename = decoded.split('|', 1)[1]
         sockets.set_filename(uuid, filename)
     else:
         websockets.send(uuid, frame)
-    try:
-        stream.read_bytes(4, partial(read_header, stream, uuid))
-    except StreamClosedError:
-        log.warning('Closed stream for %s' % uuid)
-
-
-def read_header(stream, uuid, length):
-    length, = unpack("!i", length)
-    try:
-        stream.read_bytes(length, partial(read_frame, stream, uuid))
-    except StreamClosedError:
-        log.warning('Closed stream for %s' % uuid)
-
-
-def assign_stream(stream, uuid):
-    uuid = uuid.decode('utf-8')
-    log.debug('Assigning stream to %s' % uuid)
-    sockets.add(uuid, stream)
-    stream.set_close_callback(partial(on_close, stream, uuid))
-    try:
-        stream.read_bytes(4, partial(read_header, stream, uuid))
-    except StreamClosedError:
-        log.warning('Closed stream for %s' % uuid)
-
-
-def read_uuid_size(stream, length):
-    length, = unpack("!i", length)
-    assert length == 36, 'Wrong uuid'
-    try:
-        stream.read_bytes(length, partial(assign_stream, stream))
-    except StreamClosedError:
-        log.warning('Closed stream for getting uuid')
-
-
-def handle_connection(connection, address):
-    log.info('Connection received from %s' % str(address))
-    stream = IOStream(connection, max_buffer_size=1024 * 1024 * 1024)
-    # Getting uuid
-    try:
-        stream.read_bytes(4, partial(read_uuid_size, stream))
-    except StreamClosedError:
-        log.warning('Closed stream for getting uuid length')
