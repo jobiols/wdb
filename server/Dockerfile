@@ -1,8 +1,7 @@
-FROM python:3
+FROM python:3.13.5
 
-ARG WDB_VERSION="3.3.1"
-
-RUN pip install wdb.server==$WDB_VERSION
+RUN pip install git+https://github.com/jobiols/wdb.git@master.py3.12-compatible-minimalist#subdirectory=client
+RUN pip install git+https://github.com/jobiols/wdb.git@master.py3.12-compatible-minimalist#subdirectory=server
 
 EXPOSE 19840
 EXPOSE 1984
