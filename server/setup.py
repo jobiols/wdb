@@ -11,7 +11,7 @@ __version__ = '3.3.1'
 
 requires = [
     "wdb==%s" % __version__,
-    "tornado>=5.0, <6.0",
+    "tornado>=5.0",
     "psutil>=2.1",
     'tornado_systemd',
 ]
@@ -46,7 +46,6 @@ options = dict(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
