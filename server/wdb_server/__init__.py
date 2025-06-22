@@ -159,7 +159,7 @@ class WebSocketHandler(BaseWebSocketHandler):
             self.uuid = self.uuid.decode('utf-8')
 
         if self.uuid in websockets.uuids:
-            log.warn(
+            log.warning(
                 'Websocket already opened for %s. Closing previous one'
                 % self.uuid
             )
@@ -167,7 +167,7 @@ class WebSocketHandler(BaseWebSocketHandler):
             websockets.close(uuid)
 
         if self.uuid not in sockets.uuids:
-            log.warn(
+            log.warning(
                 'Websocket opened for %s with no correponding socket'
                 % self.uuid
             )
