@@ -14,6 +14,7 @@ requires = [
     "tornado>=5.0",
     "psutil>=2.1",
     'tornado_systemd',
+    'psutil'
 ]
 if sys.platform == 'linux':
     requires.append('pyinotify')
