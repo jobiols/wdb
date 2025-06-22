@@ -93,9 +93,13 @@ trace_log = logging.getLogger('wdb.trace')
 
 for log_name in ('main', 'trace', 'ui', 'ext', 'bp'):
     logger_name = 'wdb.%s' % log_name if log_name != 'main' else 'wdb'
-    level = os.getenv(
-        'WDB_%s_LOG' % log_name.upper(), os.getenv('WDB_LOG', 'WARNING')
-    ).upper()
+
+    # TODO Quitar esto al finalizar el debug dejando las lineas comentadas
+    level = os.getenv('WDB_%s_LOG' % log_name.upper(), 'DEBUG').upper()
+
+    # level = os.getenv(
+    #     'WDB_%s_LOG' % log_name.upper(), os.getenv('WDB_LOG', 'WARNING')
+    # ).upper()
     logging.getLogger(logger_name).setLevel(getattr(logging, level, 'WARNING'))
 
 
