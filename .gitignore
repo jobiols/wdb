@@ -12,3 +12,11 @@ coverage-py*
 .cache
 .coverage
 .pytest_cache
+.venv/
+server/wdb.server.egg-info/
+client/wdb.egg-info
+# Ignore Python bytecode files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
