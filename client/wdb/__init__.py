@@ -15,6 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import with_statement
+from json import loads, JSONDecodeError
+from io import StringIO
+import logging
+from multiprocessing.connection import Client as Socket
+from html import escape
+
+
+
+
 
 try:
     import pkg_resources
@@ -29,14 +38,9 @@ else:
 _initial_globals = dict(globals())
 
 from ._compat import (
-    execute,
-    StringIO,
-    to_unicode_string,
-    escape,
-    loads,
-    JSONDecodeError,
-    Socket,
-    logger,
+#    escape,
+    #Socket,
+#    logger,
     OrderedDict,
 )
 
@@ -72,10 +76,10 @@ import webbrowser
 import atexit
 import time
 
-try:
-    import importmagic
-except ImportError:
-    importmagic = None
+# try:
+#     import importmagic
+# except ImportError:
+#     importmagic = None
 
 # Get wdb server host
 SOCKET_SERVER = os.getenv('WDB_SOCKET_SERVER', 'localhost')
@@ -88,15 +92,17 @@ WEB_SERVER = os.getenv('WDB_WEB_SERVER')
 WEB_PORT = int(os.getenv('WDB_WEB_PORT', 0))
 
 WDB_NO_BROWSER_AUTO_OPEN = bool(os.getenv('WDB_NO_BROWSER_AUTO_OPEN', False))
-log = logger('wdb')
+
+log = logging.getLogger('wdb')
 trace_log = logging.getLogger('wdb.trace')
 
-for log_name in ('main', 'trace', 'ui', 'ext', 'bp'):
+
+for log_name in ('main', 'trace', 'ui', 'ext', 'bp', 'wdb', 'wdb.trace'):
     logger_name = 'wdb.%s' % log_name if log_name != 'main' else 'wdb'
     level = os.getenv(
-        'WDB_%s_LOG' % log_name.upper(), os.getenv('WDB_LOG', 'WARNING')
+        'WDB_%s_LOG' % log_name.upper(), os.getenv('WDB_LOG', 'DEBUG')
     ).upper()
-    logging.getLogger(logger_name).setLevel(getattr(logging, level, 'WARNING'))
+    logging.getLogger(logger_name).setLevel(getattr(logging, level, 'DEBUG'))
 
 
 class Wdb(object):
@@ -127,7 +133,7 @@ class Wdb(object):
                 or port is not None
                 and wdb.port != port
             ):
-                log.warn('Different server/port set, ignoring')
+                log.warning('Different server/port set, ignoring')
             else:
                 wdb.reconnect_if_needed()
         return wdb
@@ -162,9 +168,9 @@ class Wdb(object):
         self.server = server or SOCKET_SERVER
         self.port = port or SOCKET_PORT
         self.interaction_stack = []
-        self._importmagic_index = None
-        self._importmagic_index_lock = threading.RLock()
-        self.index_imports()
+        # self._importmagic_index = None
+        # self._importmagic_index_lock = threading.RLock()
+        # self.index_imports()
         self._socket = None
         self.connect()
         self.get_breakpoints()
@@ -215,7 +221,7 @@ class Wdb(object):
         if lno is not None:
             self.breakpoints.add(LineBreakpoint(fn, lno, temporary=True))
         try:
-            execute(cmd, globals, locals)
+            exec(cmd, globals, locals)
         finally:
             self.stop_trace()
 
@@ -279,27 +285,27 @@ class Wdb(object):
 
         log.info('Server breakpoints added')
 
-    def index_imports(self):
-        if not importmagic or self._importmagic_index:
-            return
+    # def index_imports(self):
+    #     if not importmagic or self._importmagic_index:
+    #         return
 
-        self._importmagic_index_lock.acquire()
+    #     self._importmagic_index_lock.acquire()
 
-        def index(self):
-            log.info('Indexing imports')
-            index = importmagic.SymbolIndex()
-            index.build_index(sys.path)
-            self._importmagic_index = index
-            log.info('Indexing imports done')
+    #     def index(self):
+    #         log.info('Indexing imports')
+    #         index = importmagic.SymbolIndex()
+    #         index.build_index(sys.path)
+    #         self._importmagic_index = index
+    #         log.info('Indexing imports done')
 
-        index_thread = Thread(
-            target=index, args=(self,), name='wdb_importmagic_build_index'
-        )
-        # Don't wait for completion, let it die alone:
-        index_thread.daemon = True
-        index_thread.start()
+    #     index_thread = Thread(
+    #         target=index, args=(self,), name='wdb_importmagic_build_index'
+    #     )
+    #     # Don't wait for completion, let it die alone:
+    #     index_thread.daemon = True
+    #     index_thread.start()
 
-        self._importmagic_index_lock.release()
+    #     self._importmagic_index_lock.release()
 
     def breakpoints_to_json(self):
         return [brk.to_dict() for brk in self.breakpoints]
@@ -768,9 +774,7 @@ class Wdb(object):
                 'importlib',
                 '_bootstrap.py',
             )
-        return to_unicode_string(
-            ''.join(linecache.getlines(filename)), filename
-        )
+        return ''.join(linecache.getlines(filename))
 
     def get_stack(self, f, t):
         """Build the stack from frame and traceback"""
@@ -811,7 +815,6 @@ class Wdb(object):
                 line = linecache.getline(filename, lno, stack_frame.f_globals)
                 if not line:
                     line = self.compile_cache.get(id(code), '')
-                line = to_unicode_string(line, filename)
                 line = line and line.strip()
             startlnos = dis.findlinestarts(code)
             lastlineno = list(startlnos)[-1][1]
@@ -835,9 +838,10 @@ class Wdb(object):
 
     def send(self, data):
         """Send data through websocket"""
+        print('primer send esta esperando 4 bytes !!', data)
         log.debug('Sending %s' % data)
         if not self._socket:
-            log.warn('No connection')
+            log.warning('No connection')
             return
         self._socket.send_bytes(data.encode('utf-8'))
 
@@ -845,7 +849,7 @@ class Wdb(object):
         """Receive data through websocket"""
         log.debug('Receiving')
         if not self._socket:
-            log.warn('No connection')
+            log.warning('No connection')
             return
         try:
             if timeout:
@@ -1087,6 +1091,7 @@ def set_trace(frame=None, skip=0, server=None, port=None):
         if not frame.f_back:
             break
         frame = frame.f_back
+    print('datos',server, port)
     wdb = Wdb.get(server=server, port=port)
     wdb.set_trace(frame)
     return wdb
@@ -1151,7 +1156,7 @@ def cleanup():
         try:
             sck.close()
         except Exception:
-            log.warn('Error in cleanup', exc_info=True)
+            log.warning('Error in cleanup', exc_info=True)
 
 
 def shell(source=None, vars=None, server=None, port=None):

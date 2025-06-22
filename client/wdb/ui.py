@@ -9,22 +9,26 @@ from base64 import b64encode
 from logging import WARNING
 from subprocess import Popen
 from tokenize import TokenError, generate_tokens
-
+from io import StringIO
 from . import __version__, _initial_globals
+from json import JSONEncoder, dumps, loads
+import logging
+from html import escape
+
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger('wdb_server')
+log.info("Logger inicializado")
+
+
 from ._compat import (
-    JSONEncoder,
-    StringIO,
     _detect_lines_encoding,
-    dumps,
-    escape,
-    execute,
+#    escape,
     force_bytes,
     from_bytes,
     is_str,
-    loads,
-    logger,
+
     quote,
-    u,
+#    u,
 )
 from .utils import (
     Html5Diff,
@@ -54,7 +58,6 @@ try:
 except ImportError:
     Interpreter = None
 
-log = logger('wdb.ui')
 
 
 def eval_(src, *args, **kwargs):
@@ -139,7 +142,7 @@ class Interaction(object):
                 compiled_code = compile(f.read(), '<source>', 'exec')
             # Executing in locals to keep local scope
             # (http://bugs.python.org/issue16781)
-            execute(compiled_code, self.current_locals, self.current_locals)
+            exec(compiled_code, self.current_locals, self.current_locals)
 
     def hook(self, kind):
         for hook, events in self.hooks.items():
@@ -407,7 +410,7 @@ class Interaction(object):
             'Dump|%s'
             % dump(
                 {
-                    'for': u('%s ⟶ %s ') % (data, self.db.safe_repr(thing)),
+                    'for': '%s ⟶ %s ' % (data, self.db.safe_repr(thing)),
                     'val': self.db.dmp(thing),
                     'doc': get_doc(thing),
                     'source': get_source(thing),
@@ -440,13 +443,13 @@ class Interaction(object):
                 append = False
             if redir and last_line:
                 indent = len(lines[-1]) - len(lines[-1].lstrip())
-                lines[-1] = indent * u(' ') + last_line
+                lines[-1] = indent * ' ' + last_line
                 raw_data = '\n'.join(lines)
         data = raw_data
         # Keep spaces
-        raw_data = raw_data.replace(' ', u(' '))
+        raw_data = raw_data.replace(' ', ' ')
         # Compensate prompt for multi line
-        raw_data = raw_data.replace('\n', '\n' + u(' ' * 4))
+        raw_data = raw_data.replace('\n', '\n' + ' ' * 4)
         duration = None
         with self.db.capture_output(with_hook=redir is None) as (out, err):
             compiled_code = None
@@ -482,12 +485,12 @@ class Interaction(object):
             if compiled_code is not None:
                 self.db.compile_cache[id(compiled_code)] = data
                 try:
-                    execute(compiled_code, self.get_globals(), loc)
+                    exec(compiled_code, self.get_globals(), loc)
                 except NameError as e:
                     m = re.match("name '(.+)' is not defined", str(e))
                     if m:
                         name = m.groups()[0]
-                        if self.db._importmagic_index:
+                        if False: # self.db._importmagic_index:
                             scores = self.db._importmagic_index.symbol_scores(
                                 name
                             )
@@ -804,7 +807,7 @@ class Interaction(object):
                 'Display|%s'
                 % dump(
                     {
-                        'for': u('%s (%s)') % (data, mime),
+                        'for': '%s (%s)' % (data, mime),
                         'val': from_bytes(b64encode(thing)),
                         'type': mime,
                     }
@@ -877,11 +880,9 @@ class Interaction(object):
             for string in strings
         ]
         self.db.send(
-            'RawHTML|%s'
-            % dump(
+            'RawHTML|%s' % dump(
                 {
-                    'for': u('Difference between %s')
-                    % (' and '.join(expressions)),
+                    'for': 'Difference between %s' % (' and '.join(expressions)),
                     'val': self.htmldiff.make_table(
                         strings[0].splitlines(keepends=True),
                         strings[1].splitlines(keepends=True),

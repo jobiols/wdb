@@ -3,7 +3,7 @@ import os
 import sys
 
 from wdb import Wdb
-from wdb._compat import execute
+
 
 parser = argparse.ArgumentParser(description='Wdb, the web python debugger.')
 parser.add_argument(
@@ -51,7 +51,7 @@ def main():
 
             with open(file) as f:
                 code = compile(f.read(), file, 'exec')
-                execute(code, globals(), globals())
+                exec(code, globals(), globals())
 
     else:
         source = None

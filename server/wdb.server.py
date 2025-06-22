@@ -10,7 +10,12 @@ from tornado_systemd import SYSTEMD_SOCKET_FD, SystemdHTTPServer
 from wdb_server import server
 from wdb_server.streams import handle_connection
 
-log = getLogger('wdb_server')
+log = getLogger("wdb_server")
+
+# Forzar nivel debug
+options.debug = True
+options.more = True
+
 if options.debug:
     log.setLevel(INFO)
     if options.more:

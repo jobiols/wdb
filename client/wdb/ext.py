@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from html import escape
+
 from . import (
     trace,
     start_trace,
@@ -25,7 +27,7 @@ from . import (
     WEB_PORT,
 )
 from .ui import dump
-from ._compat import to_bytes, escape, logger, TCPServer
+from ._compat import to_bytes, logger, TCPServer
 
 import traceback
 from threading import current_thread
