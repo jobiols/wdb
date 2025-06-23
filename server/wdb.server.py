@@ -13,9 +13,9 @@ from wdb_server.streams import handle_connection
 
 log = getLogger('wdb_server')
 
-# TODO Quitar esto al finalizar el debug
-options.debug = True
-options.more = True
+# Esto pone el log en modo DEBUG
+# options.debug = True
+# options.more = True
 
 if options.debug:
     log.setLevel(INFO)
