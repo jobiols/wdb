@@ -118,7 +118,7 @@ def refresh_process(uuid=None):
                 except psutil.NoSuchProcess:
                     pass
             except Exception:
-                log.warn('', exc_info=True)
+                log.warning('', exc_info=True)
                 continue
 
     send('KeepProcess', remaining_pids)

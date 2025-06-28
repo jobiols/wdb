@@ -15,6 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# TODO Quitar esto al finalizar el debug
+# "Limpieza de procesos" significa no dejar procesos colgados, saber si terminaron, y poder
+# manejarlos si fallan. En tu código, como estás lanzando procesos por fuera del flujo principal
+# (debug remoto, ejecución de scripts), conviene tener control sobre ellos.
+# - Agregá logs cuando arrancás un proceso.
+# - Guardá los procesos si necesitás terminarlos o esperar que terminen.
+# - Si no necesitás controlar su ciclo de vida, al menos logueá errores o códigos de salida.
+# por ejemplo en             Process(target=run).start()
+
 import json
 import logging
 import os
@@ -29,15 +38,26 @@ import tornado.web
 import tornado.websocket
 from wdb_server.state import breakpoints, sockets, syncwebsockets, websockets
 
+# try:
+#     import pkg_resources
+# except ImportError:
+#     __version__ = "pkg_resources not found on PYTHON_PATH"
+# else:
+#     try:
+#         __version__ = pkg_resources.require('wdb.server')[0].version
+#     except pkg_resources.DistributionNotFound:
+#         __version__ = "wdb.server is not installed"
+
 try:
-    import pkg_resources
+    from importlib.metadata import version, PackageNotFoundError
 except ImportError:
-    __version__ = "pkg_resources not found on PYTHON_PATH"
+    __version__ = "unknown"
 else:
     try:
-        __version__ = pkg_resources.require('wdb.server')[0].version
-    except pkg_resources.DistributionNotFound:
-        __version__ = "wdb.server is not installed"
+        __version__ = version('wdb')
+    except PackageNotFoundError:
+        __version__ = "unknown"
+
 
 log = logging.getLogger('wdb_server')
 static_path = os.path.join(os.path.dirname(__file__), "static")
@@ -159,7 +179,7 @@ class WebSocketHandler(BaseWebSocketHandler):
             self.uuid = self.uuid.decode('utf-8')
 
         if self.uuid in websockets.uuids:
-            log.warn(
+            log.warning(
                 'Websocket already opened for %s. Closing previous one'
                 % self.uuid
             )
@@ -167,7 +187,7 @@ class WebSocketHandler(BaseWebSocketHandler):
             websockets.close(uuid)
 
         if self.uuid not in sockets.uuids:
-            log.warn(
+            log.warning(
                 'Websocket opened for %s with no correponding socket'
                 % self.uuid
             )
@@ -197,6 +217,7 @@ class WebSocketHandler(BaseWebSocketHandler):
 class SyncWebSocketHandler(BaseWebSocketHandler):
     def write(self, message):
         log.debug('server -> syncsocket: %s' % message)
+        assert message is not None, "Can not send None via WebSocket"
         self.write_message(message)
 
     def on_open(self):

@@ -1,0 +1,63 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Client",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_debug.py",
+            "console": "integratedTerminal",
+            "stopOnEntry": false,
+            "justMyCode": false,
+            "env": {
+                "DEBUG": "true"
+            },
+            "args": []
+        },
+        {
+            "name": "Python Debugger: Server",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/server/wdb.server.py",
+            "console": "integratedTerminal",
+            "stopOnEntry": false,
+            "justMyCode": false,
+            "env": {
+                "DEBUG": "true"
+            },
+            "args": []
+        },
+        {
+            "name": "Pytest: Debug test_trace.py",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "test_trace.py::test_with_trace", // Ejecuta solo el test que falla
+                "-vv",
+                "-s" // ¡Muy importante! Evita que pytest capture la salida
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false // Para poder entrar en el código de las librerías
+        },
+        {
+            "name": "Pytest: Debug test_trace.py (con SUBPROCESOS)",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "cwd": "${workspaceFolder}/test",
+            "args": [
+                "test_trace.py::test_with_trace",
+                "-vv",
+                "-s"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "subProcess": true // <-- ¡ESTA ES LA MAGIA!
+        }
+
+    ]
+}

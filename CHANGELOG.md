@@ -1,3 +1,7 @@
+# 3.3.1
+
+- Update proyect for python 3.12
+
 # 3.3.0
 
 - Fix crash on startup

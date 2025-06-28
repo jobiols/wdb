@@ -14,17 +14,26 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import with_statement
+
+# try:
+#     import pkg_resources
+# except ImportError:
+#     __version__ = "pkg_resources not found on PYTHON_PATH"
+# else:
+#     try:
+#         __version__ = pkg_resources.require('wdb')[0].version
+#     except pkg_resources.DistributionNotFound:
+#         __version__ = "wdb is not installed"
 
 try:
-    import pkg_resources
+    from importlib.metadata import version, PackageNotFoundError
 except ImportError:
-    __version__ = "pkg_resources not found on PYTHON_PATH"
+    __version__ = "unknown"
 else:
     try:
-        __version__ = pkg_resources.require('wdb')[0].version
-    except pkg_resources.DistributionNotFound:
-        __version__ = "wdb is not installed"
+        __version__ = version('wdb')
+    except PackageNotFoundError:
+        __version__ = "unknown"
 
 _initial_globals = dict(globals())
 
@@ -93,6 +102,10 @@ trace_log = logging.getLogger('wdb.trace')
 
 for log_name in ('main', 'trace', 'ui', 'ext', 'bp'):
     logger_name = 'wdb.%s' % log_name if log_name != 'main' else 'wdb'
+
+    # Esto pone el log en modo DEBUG
+    #level = os.getenv('WDB_%s_LOG' % log_name.upper(), 'DEBUG').upper()
+
     level = os.getenv(
         'WDB_%s_LOG' % log_name.upper(), os.getenv('WDB_LOG', 'WARNING')
     ).upper()
@@ -127,7 +140,7 @@ class Wdb(object):
                 or port is not None
                 and wdb.port != port
             ):
-                log.warn('Different server/port set, ignoring')
+                log.warning('Different server/port set, ignoring')
             else:
                 wdb.reconnect_if_needed()
         return wdb
@@ -837,7 +850,7 @@ class Wdb(object):
         """Send data through websocket"""
         log.debug('Sending %s' % data)
         if not self._socket:
-            log.warn('No connection')
+            log.warning('No connection')
             return
         self._socket.send_bytes(data.encode('utf-8'))
 
@@ -845,7 +858,7 @@ class Wdb(object):
         """Receive data through websocket"""
         log.debug('Receiving')
         if not self._socket:
-            log.warn('No connection')
+            log.warning('No connection')
             return
         try:
             if timeout:
@@ -1151,7 +1164,7 @@ def cleanup():
         try:
             sck.close()
         except Exception:
-            log.warn('Error in cleanup', exc_info=True)
+            log.warning('Error in cleanup', exc_info=True)
 
 
 def shell(source=None, vars=None, server=None, port=None):
@@ -1177,4 +1190,6 @@ def post_mortem(t=None, server=None, port=None):
 
 
 def pm(server=None, port=None):
-    post_mortem(sys.last_traceback, server=server, port=port)
+#    post_mortem(sys.last_traceback, server=server, port=port)
+# TODO Revisar
+    post_mortem(getattr(sys, 'last_traceback', server=server, port=port))
