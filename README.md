@@ -1,6 +1,7 @@
 # wdb - Web Debugger
 [![CodeFactor](https://www.codefactor.io/repository/github/jobiols/wdb/badge)](https://www.codefactor.io/repository/github/jobiols/wdb)
-[![DeepSource](https://app.deepsource.com/gh/jobiols/wdb.svg/?label=code+coverage&show_trend=true&token=queOSnpnRGZwcWoR6yN_QdAO)](https://app.deepsource.com/gh/jobiols/wdb/)
+[![DeepSource](https://app.deepsource.com/gh/jobiols/wdb.svg/?label=active+issues&show_trend=true&token=queOSnpnRGZwcWoR6yN_QdAO)](https://app.deepsource.com/gh/jobiols/wdb/)
+[![DeepSource](https://app.deepsource.com/gh/jobiols/wdb.svg/?label=resolved+issues&show_trend=true&token=queOSnpnRGZwcWoR6yN_QdAO)](https://app.deepsource.com/gh/jobiols/wdb/)
 
 [![](https://raw.github.com/Kozea/wdb/master/wdb.png)](https://raw.github.com/Kozea/wdb/master/wdb-lg.png)
 
