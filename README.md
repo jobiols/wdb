@@ -5,8 +5,19 @@
 
 [![](https://raw.github.com/Kozea/wdb/master/wdb.png)](https://raw.github.com/Kozea/wdb/master/wdb-lg.png)
 
+# WDB Fork - Enhanced Web Debugger
 
-## Description
+This project is a **fork of [WDB](https://github.com/Kozea/wdb)**, a web debugger over WebSockets originally created by **Florian Mounier (Kozea)**.
+The goal of this fork is to maintain and improve the original project by adding compatibility updates, stability fixes, and optimizations for modern Docker environments.
+
+---
+
+## 🚀 Features
+
+- Based on the original WDB project (GPLv3).
+- Updated for **Python 3.13** compatibility.
+- Lightweight and production-ready **Docker image**.
+- Easy integration with **Odoo** and other containerized development environments.
 
 
 **wdb** is a full featured web debugger based on a client-server architecture.
@@ -16,7 +27,7 @@ The wdb clients allow step by step debugging, in-program python code execution, 
 
 Due to this architecture, all of this is fully compatible with **multithread** and **multiprocess** programs.
 
-**wdb** works with python 2 (2.6, 2.7), python 3 (3.2, 3.3, 3.4, 3.5) and pypy.
+**wdb** works with python 3 (3.2, 3.3, 3.4, 3.5 .. 3.13) and pypy.
 Even better, it is possible to debug a python 2 program with a wdb server running on python 3 and vice-versa or debug a program running on a computer with a debugging server running on another computer inside a web page on a third computer!
 
 Even betterer, it is now possible to pause a currently running python process/thread using code injection from the web interface. (This requires gdb and ptrace enabled)
@@ -444,9 +455,9 @@ DEBUG 2017-07-16 13:15:03,772 index 49835 123145573191680 parsing Python module 
 ```
 
 
-To silence only this message, add a config for the importmagic module. For example: 
+To silence only this message, add a config for the importmagic module. For example:
 
-```    
+```
 LOGGING = {
     ...
     'loggers': {

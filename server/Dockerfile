@@ -1,4 +1,15 @@
+# ============================================================================
+# WDB Fork - Enhanced Web Debugger
+# Based on the original project by Florian Mounier (Kozea)
+# License: GPLv3
+# Maintainer: Jorge Obiols <jorge.obiols@gmail.com>
+# ============================================================================
+
 FROM python:3.13.5-alpine
+
+LABEL maintainer="Jorge Obiols <jorge.obiols@gmail.com>" \
+      license="GPLv3" \
+      description="Fork of WDB with improvements and Python 3.13 compatibility. Based on the original project by Florian Mounier (Kozea)."
 
 RUN apk add --no-cache git gcc musl-dev linux-headers
 
