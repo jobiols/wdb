@@ -1,6 +1,7 @@
 # wdb - Web Debugger
 [![Build Status](https://travis-ci.org/Kozea/wdb.svg?branch=master)](https://travis-ci.org/Kozea/wdb)
 [![Coverage Status](https://coveralls.io/repos/Kozea/wdb/badge.svg?branch=master&service=github)](https://coveralls.io/github/Kozea/wdb?branch=master)
+[![CodeFactor](https://www.codefactor.io/repository/github/jobiols/wdb/badge)](https://www.codefactor.io/repository/github/jobiols/wdb)
 
 [![](https://raw.github.com/Kozea/wdb/master/wdb.png)](https://raw.github.com/Kozea/wdb/master/wdb-lg.png)
 
