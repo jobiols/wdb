@@ -12,23 +12,23 @@ from ._compat import OrderedDict, StringIO, existing_module
 
 def pretty_frame(frame):
     if frame:
-        return '%s <%s:%d>' % (
+        return "%s <%s:%d>" % (
             frame.f_code.co_name,
             frame.f_code.co_filename,
             frame.f_lineno,
         )
     else:
-        return 'None'
+        return "None"
 
 
 def get_code(obj):
-    if hasattr(obj, '__func__'):
+    if hasattr(obj, "__func__"):
         return obj.__func__
-    if hasattr(obj, '__code__'):
+    if hasattr(obj, "__code__"):
         return obj.__code__
-    if hasattr(obj, 'gi_code'):
+    if hasattr(obj, "gi_code"):
         return obj.gi_code
-    if hasattr(obj, 'co_code'):
+    if hasattr(obj, "co_code"):
         return obj
 
 
@@ -39,7 +39,7 @@ def get_source_from_byte_code(code):
         return
     version = sys.version_info[0] + (sys.version_info[1] / 10.0)
     try:
-        with open(os.devnull, 'w') as dn:
+        with open(os.devnull, "w") as dn:
             return uncompyle6.deparse_code(version, code, dn).text
     except Exception:
         return
@@ -53,9 +53,7 @@ def get_source(obj):
         if code:
             source = get_source_from_byte_code(code)
             if source:
-                return (
-                    '# The following source has been decompilated:\n' + source
-                )
+                return "# The following source has been decompilated:\n" + source
 
         old_stdout = sys.stdout
         sys.stdout = StringIO()
@@ -67,30 +65,25 @@ def get_source(obj):
             return rv
         except Exception:
             sys.stdout = old_stdout
-            return ''
+            return ""
 
 
 def get_doc(obj):
     doc = inspect.getdoc(obj)
     com = inspect.getcomments(obj)
     if doc and com:
-        return '%s\n\n(%s)' % (doc, com)
+        return "%s\n\n(%s)" % (doc, com)
     elif doc:
         return doc
     elif com:
         return com
-    return ''
+    return ""
 
 
 def executable_line(line):
     line = line.strip()
     return not (
-        (
-            not line
-            or (line[0] == '#')
-            or (line[:3] == '"""')
-            or line[:3] == "'''"
-        )
+        (not line or (line[0] == "#") or (line[:3] == '"""') or line[:3] == "'''")
     )
 
 
@@ -98,7 +91,7 @@ def get_args(frame):
     code = frame.f_code
     varnames = code.co_varnames
     nargs = code.co_argcount
-    if hasattr(code, 'co_kwonlyargcount'):
+    if hasattr(code, "co_kwonlyargcount"):
         kwonly = code.co_kwonlyargcount
     else:
         # Python 2
@@ -110,7 +103,7 @@ def get_args(frame):
 
     # Var args (*args)
     if frame.f_code.co_flags & 0x4:
-        vars['*' + varnames[nargs + kwonly]] = locals[varnames[nargs + kwonly]]
+        vars["*" + varnames[nargs + kwonly]] = locals[varnames[nargs + kwonly]]
         nargs += 1
 
     for n in range(kwonly):
@@ -119,7 +112,7 @@ def get_args(frame):
     nargs += kwonly
 
     if frame.f_code.co_flags & 0x8:
-        vars['**' + varnames[nargs]] = locals[varnames[nargs]]
+        vars["**" + varnames[nargs]] = locals[varnames[nargs]]
 
     return vars
 
@@ -146,43 +139,38 @@ class Html5Diff(HtmlDiff):
         text -- line text to be marked up
         """
         try:
-            linenum = '%d' % linenum
+            linenum = "%d" % linenum
             id = ' id="%s%s"' % (self._prefix[side], linenum)
         except TypeError:
             # handle blank lines where linenum is '>' or ''
-            id = ''
+            id = ""
         # replace those things that would get confused with HTML symbols
-        text = (
-            text.replace("&", "&amp;")
-            .replace(">", "&gt;")
-            .replace("<", "&lt;")
-        )
+        text = text.replace("&", "&amp;").replace(">", "&gt;").replace("<", "&lt;")
 
-        type_ = 'neutral'
-        if '\0+' in text:
-            type_ = 'add'
-        if '\0-' in text:
-            if type_ == 'add':
-                type_ = 'chg'
-            type_ = 'sub'
-        if '\0^' in text:
-            type_ = 'chg'
+        type_ = "neutral"
+        if "\0+" in text:
+            type_ = "add"
+        if "\0-" in text:
+            if type_ == "add":
+                type_ = "chg"
+            type_ = "sub"
+        if "\0^" in text:
+            type_ = "chg"
 
         # make space non-breakable so they don't get compressed or line wrapped
-        text = text.replace(' ', '&nbsp;').rstrip()
+        text = text.replace(" ", "&nbsp;").rstrip()
 
         return (
             '<td class="diff_lno"%s>%s</td>'
-            '<td class="diff_line diff_line_%s">%s</td>'
-            % (id, linenum, type_, text)
+            '<td class="diff_line diff_line_%s">%s</td>' % (id, linenum, type_, text)
         )
 
     def make_table(
         self,
         fromlines,
         tolines,
-        fromdesc='',
-        todesc='',
+        fromdesc="",
+        todesc="",
         context=False,
         numlines=5,
     ):
@@ -236,38 +224,39 @@ class Html5Diff(HtmlDiff):
         )
 
         s = []
-        fmt = ' <tr>%s%s</tr>\n'
+        fmt = " <tr>%s%s</tr>\n"
 
-        for i in range(len(flaglist)):
-            if flaglist[i] is None:
+        for i, flag in enumerate(flaglist):
+            if flag is None:
                 # mdiff yields None on separator lines skip the bogus ones
                 # generated for the first line
                 if i > 0:
-                    s.append('        </tbody>        \n        <tbody>\n')
+                    s.append("        </tbody>        \n        <tbody>\n")
             else:
                 s.append(fmt % (fromlist[i], tolist[i]))
+
         if fromdesc or todesc:
-            header_row = '<thead><tr>%s%s</tr></thead>' % (
+            header_row = "<thead><tr>%s%s</tr></thead>" % (
                 '<th colspan="2" class="diff_header">%s</th>' % fromdesc,
                 '<th colspan="2" class="diff_header">%s</th>' % todesc,
             )
         else:
-            header_row = ''
+            header_row = ""
 
         table = self._table_template % dict(
-            data_rows=''.join(s), header_row=header_row, prefix=self._prefix[1]
+            data_rows="".join(s), header_row=header_row, prefix=self._prefix[1]
         )
 
         return (
-            table.replace('\0+', '<span class="diff_add">')
-            .replace('\0-', '<span class="diff_sub">')
-            .replace('\0^', '<span class="diff_chg">')
-            .replace('\1', '</span>')
-            .replace('\t', '&nbsp;')
+            table.replace("\0+", '<span class="diff_add">')
+            .replace("\0-", '<span class="diff_sub">')
+            .replace("\0^", '<span class="diff_chg">')
+            .replace("\1", "</span>")
+            .replace("\t", "&nbsp;")
         )
 
 
-def search_key_in_obj(key, obj, matches=None, path='', context=None):
+def search_key_in_obj(key, obj, matches=None, path="", context=None):
     context = context or []
     matches = matches or []
     if id(obj) in context:
@@ -285,8 +274,8 @@ def search_key_in_obj(key, obj, matches=None, path='', context=None):
                     (
                         "%s['%s']"
                         % (
-                            path.rstrip('.'),
-                            k.replace(key, '<mark>%s</mark>' % key),
+                            path.rstrip("."),
+                            k.replace(key, "<mark>%s</mark>" % key),
                         ),
                         v,
                     )
@@ -296,7 +285,7 @@ def search_key_in_obj(key, obj, matches=None, path='', context=None):
                     key,
                     v,
                     matches,
-                    "%s['%s']." % (path.rstrip('.'), k),
+                    "%s['%s']." % (path.rstrip("."), k),
                     context,
                 )
             except Exception:
@@ -308,13 +297,13 @@ def search_key_in_obj(key, obj, matches=None, path='', context=None):
                 continue
             try:
                 matches = search_key_in_obj(
-                    key, v, matches, "%s[%d]." % (path.rstrip('.'), i), context
+                    key, v, matches, "%s[%d]." % (path.rstrip("."), i), context
                 )
             except Exception:
                 pass
 
     for k in dir(obj):
-        if k.startswith('__') and k not in ('__class__',):
+        if k.startswith("__") and k not in ("__class__",):
             continue
         v = getattr(obj, k, None)
         v2 = getattr(obj, k, None)
@@ -324,19 +313,17 @@ def search_key_in_obj(key, obj, matches=None, path='', context=None):
             continue
         if key in k:
             matches.append(
-                ('%s%s' % (path, k.replace(key, '<mark>%s</mark>' % key)), v)
+                ("%s%s" % (path, k.replace(key, "<mark>%s</mark>" % key)), v)
             )
         try:
-            matches = search_key_in_obj(
-                key, v, matches, '%s%s.' % (path, k), context
-            )
+            matches = search_key_in_obj(key, v, matches, "%s%s." % (path, k), context)
         except Exception:
             pass
 
     return matches
 
 
-def search_value_in_obj(fun, obj, matches=None, path='', context=None):
+def search_value_in_obj(fun, obj, matches=None, path="", context=None):
     context = context or []
     matches = matches or []
     if id(obj) in context:
@@ -352,17 +339,15 @@ def search_value_in_obj(fun, obj, matches=None, path='', context=None):
 
             res = None
             try:
-                res = eval(fun, {'x': v})
+                res = eval(fun, {"x": v})
             except Exception:
                 pass
-            new_path = "%s['%s']" % (path.rstrip('.'), k)
+            new_path = "%s['%s']" % (path.rstrip("."), k)
 
             if res:
                 matches.append((new_path, v))
             try:
-                matches = search_value_in_obj(
-                    fun, v, matches, new_path + '.', context
-                )
+                matches = search_value_in_obj(fun, v, matches, new_path + ".", context)
             except Exception:
                 pass
 
@@ -373,23 +358,21 @@ def search_value_in_obj(fun, obj, matches=None, path='', context=None):
 
             res = None
             try:
-                res = eval(fun, {'x': v})
+                res = eval(fun, {"x": v})
             except Exception:
                 pass
 
-            new_path = "%s[%d]" % (path.rstrip('.'), i)
+            new_path = "%s[%d]" % (path.rstrip("."), i)
 
             if res:
                 matches.append((new_path, v))
             try:
-                matches = search_value_in_obj(
-                    fun, v, matches, new_path + '.', context
-                )
+                matches = search_value_in_obj(fun, v, matches, new_path + ".", context)
             except Exception:
                 pass
 
     for k in dir(obj):
-        if k.startswith('__') and k not in ('__class__',):
+        if k.startswith("__") and k not in ("__class__",):
             continue
         v = getattr(obj, k, None)
         v2 = getattr(obj, k, None)
@@ -400,18 +383,16 @@ def search_value_in_obj(fun, obj, matches=None, path='', context=None):
 
         res = None
         try:
-            res = eval(fun, {'x': v})
+            res = eval(fun, {"x": v})
         except Exception:
             pass
 
-        new_path = '%s%s' % (path, k)
+        new_path = "%s%s" % (path, k)
 
         if res:
             matches.append((new_path, v))
         try:
-            matches = search_value_in_obj(
-                fun, v, matches, new_path + '.', context
-            )
+            matches = search_value_in_obj(fun, v, matches, new_path + ".", context)
         except Exception:
             pass
 
@@ -426,13 +407,13 @@ class timeout_of(object):
             signal.signal(signal.SIGALRM, signal.SIG_IGN)
         except Exception:
             if strict:
-                raise Exception('Not running because timeout is not available')
+                raise Exception("Not running because timeout is not available")
             self.active = False
         else:
             self.active = True
 
     def timeout(self, signum, frame):
-        raise Exception('Timeout')
+        raise Exception("Timeout")
 
     def __enter__(self):
         if not self.active:
@@ -477,7 +458,7 @@ def cut_if_too_long(iterable, level, tuple_=False):
 @contextmanager
 def inplace(
     filename,
-    mode='r',
+    mode="r",
     buffering=-1,
     encoding=None,
     errors=None,
@@ -498,10 +479,10 @@ def inplace(
 
     # move existing file to backup, create new file with same permissions
     # borrowed extensively from the fileinput module
-    if set(mode).intersection('wa+'):
-        raise ValueError('Only read-only file modes can be used')
+    if set(mode).intersection("wa+"):
+        raise ValueError("Only read-only file modes can be used")
 
-    backupfilename = filename + (backup_extension or os.extsep + 'bak')
+    backupfilename = filename + (backup_extension or os.extsep + "bak")
     try:
         os.unlink(backupfilename)
     except os.error:
@@ -520,7 +501,7 @@ def inplace(
     except OSError:
         writable = io.open(
             filename,
-            'w' + mode.replace('r', ''),
+            "w" + mode.replace("r", ""),
             buffering=buffering,
             encoding=encoding,
             errors=errors,
@@ -528,19 +509,19 @@ def inplace(
         )
     else:
         os_mode = os.O_CREAT | os.O_WRONLY | os.O_TRUNC
-        if hasattr(os, 'O_BINARY'):
+        if hasattr(os, "O_BINARY"):
             os_mode |= os.O_BINARY
         fd = os.open(filename, os_mode, perm)
         writable = io.open(
             fd,
-            "w" + mode.replace('r', ''),
+            "w" + mode.replace("r", ""),
             buffering=buffering,
             encoding=encoding,
             errors=errors,
             newline=newline,
         )
         try:
-            if hasattr(os, 'chmod'):
+            if hasattr(os, "chmod"):
                 os.chmod(filename, perm)
         except OSError:
             pass
