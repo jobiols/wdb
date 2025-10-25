@@ -238,14 +238,15 @@ class Html5Diff(HtmlDiff):
         s = []
         fmt = ' <tr>%s%s</tr>\n'
 
-        for i in range(len(flaglist)):
-            if flaglist[i] is None:
+        for i, flag in enumerate(flaglist):
+            if flag is None:
                 # mdiff yields None on separator lines skip the bogus ones
                 # generated for the first line
                 if i > 0:
                     s.append('        </tbody>        \n        <tbody>\n')
             else:
                 s.append(fmt % (fromlist[i], tolist[i]))
+
         if fromdesc or todesc:
             header_row = '<thead><tr>%s%s</tr></thead>' % (
                 '<th colspan="2" class="diff_header">%s</th>' % fromdesc,
