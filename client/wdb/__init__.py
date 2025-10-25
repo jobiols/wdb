@@ -560,7 +560,7 @@ class Wdb(object):
         self, obj, context=None, html=True, level=0, full=False
     ):
         """Repr with inspect links on objects"""
-        context = context and dict(context) or {}
+        context = dict(context or {})
         recursion = id(obj) in context
         if not recursion:
             context[id(obj)] = obj
