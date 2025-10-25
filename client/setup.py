@@ -7,13 +7,13 @@ import sys
 
 from setuptools import setup
 
-__version__ = '3.3.2'
+__version__ = "3.3.2"
 
 requires = [
     "log_colorizer>=1.8.3",
     "jedi>=0.9.0",
-    'uncompyle6',
-    'python-magic>=0.4.15',
+    "uncompyle6",
+    "python-magic>=0.4.15",
 ]
 
 options = dict(
@@ -26,12 +26,12 @@ options = dict(
     url="http://github.com/Kozea/wdb",
     license="GPLv3",
     platforms="Any",
-    packages=['wdb'],
+    packages=["wdb"],
     install_requires=requires,
     entry_points={
-        'console_scripts': [
-            'wdb=wdb.__main__:main',
-            'wdb-%s=wdb.__main__:main' % sys.version[:3],
+        "console_scripts": [
+            "wdb=wdb.__main__:main",
+            "wdb-%s=wdb.__main__:main" % sys.version[:3],
         ]
     },
     classifiers=[
