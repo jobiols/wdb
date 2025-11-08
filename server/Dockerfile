@@ -20,4 +20,7 @@ RUN git clone https://github.com/jobiols/wdb.git /opt/wdb \
 EXPOSE 19840
 EXPOSE 1984
 
-CMD ["wdb.server.py", "--detached_session", "--debug", "--more"]
+
+CMD ["wdb.server.py", "--detached_session"]
+# para debug
+#CMD ["wdb.server.py", "--detached_session", "--debug", "--more"]
