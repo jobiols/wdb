@@ -1,3 +1,7 @@
+# 3.3.2
+- update proyect for python 3.14
+
+
 # 3.3.1
 
 - Update proyect for python 3.12

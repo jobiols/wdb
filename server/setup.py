@@ -7,17 +7,17 @@ import sys
 
 from setuptools import setup
 
-__version__ = '3.3.1'
+__version__ = "3.3.2"
 
 requires = [
     "wdb==%s" % __version__,
     "tornado>=5.0",
     "psutil>=2.1",
-    'tornado_systemd',
-    'psutil'
+    "tornado_systemd",
+    "psutil",
 ]
-if sys.platform == 'linux':
-    requires.append('pyinotify')
+if sys.platform == "linux":
+    requires.append("pyinotify")
 
 options = dict(
     name="wdb.server",
@@ -29,17 +29,17 @@ options = dict(
     url="http://github.com/Kozea/wdb",
     license="GPLv3",
     platforms="Any",
-    scripts=['wdb.server.py'],
-    packages=['wdb_server'],
+    scripts=["wdb.server.py"],
+    packages=["wdb_server"],
     install_requires=requires,
     package_data={
-        'wdb_server': [
-            'static/libs/material-design-lite/*',
-            'static/stylesheets/*',
-            'static/hipster.jpg',
-            'static/img/*.png',
-            'static/javascripts/wdb/*.min.js',
-            'templates/*.html',
+        "wdb_server": [
+            "static/libs/material-design-lite/*",
+            "static/stylesheets/*",
+            "static/hipster.jpg",
+            "static/img/*.png",
+            "static/javascripts/wdb/*.min.js",
+            "templates/*.html",
         ]
     },
     classifiers=[
